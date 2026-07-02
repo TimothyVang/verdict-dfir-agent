@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+> **This repository is archived and superseded by
+> [`caseforge-core`](https://github.com/TimothyVang/caseforge-core).**
+> This opencode DFIR profile (agents / commands / skill) now lives in
+> `caseforge-core/configs/opencode/`, maintained alongside the privacy-mode
+> router, structured findings, and custody validation. Use `caseforge-core` for
+> new work. This repo remains read-only for reference.
+
 <p align="center"><b>VERDICT DFIR Agent</b></p>
 
 <p align="center"><b>Show Me the Evidence — a local-first, self-hostable agent for digital forensics & incident response.</b></p>
