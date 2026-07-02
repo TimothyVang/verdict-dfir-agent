@@ -49,9 +49,15 @@ The profile registers a provider-agnostic OpenAI-compatible local provider
 | **vLLM / LM Studio / llama.cpp** | point `VERDICT_LLM_BASEURL` at its `/v1` endpoint |
 | **Cloud** (Anthropic/OpenAI/…) | authenticate in opencode and select via `/models` |
 
-> Local agentic DFIR needs a capable **tool-calling** model. On CPU-only boxes a
-> small local model will be slow and may not reliably drive multi-tool
-> investigations — use a strong model until GPU + vLLM are in place.
+> **Model choice matters — a lot.** Local agentic DFIR needs a strong native
+> **tool-calling** model. In testing on the `nitroba.pcap` fixture:
+> a capable model (e.g. `gpt-5.5` / `gpt-5.4-mini`) drove the real chain
+> `case_open` → `pcap_triage` and returned evidence-bound findings, correctly
+> flagging them as *triage leads, not a verdict*. Small **CPU-only** local models
+> did **not**: `qwen2.5-coder:7b` emitted the tool call as plain text (never
+> executed) and `llama3.1:8b` fabricated findings. Until you have a GPU + vLLM
+> serving a strong tool-caller, prefer a capable model via `/models` for real
+> investigations; treat small local models as offline/triage-only.
 
 ## Prerequisites
 
