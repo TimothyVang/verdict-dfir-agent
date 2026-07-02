@@ -1,0 +1,16 @@
+VERDICT DFIR Agent
+Copyright 2026 Timothy Vang
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This is an opencode PROFILE (agents, commands, skill) for the VERDICT DFIR
+platform. It reuses content and tools from:
+
+- verdict-dfir-community (Apache-2.0) — https://github.com/TimothyVang/verdict-dfir-community
+  The forensic doctrine under .opencode/skill/verdict-dfir/reference/ (MEMORY.md,
+  GROUNDING.md, JUDGING.md, EXPERT.md, TOOLS.md) and the agent/command prose are
+  ported from that project's agent-config/. The findevil-mcp / findevil-agent-mcp
+  forensic tool servers are provided by that project (not vendored here).
+
+- verdict-opencode — https://github.com/TimothyVang/verdict-opencode
+  The `verdict` agent runtime, a branded fork of opencode (MIT, https://github.com/sst/opencode).

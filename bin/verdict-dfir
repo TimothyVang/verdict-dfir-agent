@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# verdict-dfir — launch the VERDICT DFIR agent.
+#
+# Runs the branded `verdict` opencode fork with this repo's .opencode profile
+# (DFIR agents, commands, skill) and the VERDICT forensic MCP servers attached.
+# The profile lives in a separate repo from your case data, so we load it via
+# OPENCODE_CONFIG / OPENCODE_CONFIG_DIR rather than relying on a ./.opencode in
+# the case directory.
+#
+# Usage:  verdict-dfir [case-dir]
+#
+# Environment (all overridable; sensible defaults below):
+#   VERDICT_DFIR_HOME   toolkit checkout that provides the MCP launch scripts
+#   VERDICT_LLM_BASEURL OpenAI-compatible endpoint (Ollama/vLLM/LM Studio/cloud)
+#   VERDICT_LLM_APIKEY  key for that endpoint (any non-empty string for local)
+#   VERDICT_LLM_MODEL   model id exposed as the "verdict-local/local" option
+#   VERDICT_BIN         the branded fork binary (default: verdict)
+set -euo pipefail
+
+PROFILE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# --- resolve the toolkit (MCP servers) -------------------------------------
+if [ -z "${VERDICT_DFIR_HOME:-}" ]; then
+  for cand in \
+    "$(dirname "$PROFILE_DIR")/dev-verdict-github" \
+    "$(dirname "$PROFILE_DIR")/verdict-dfir-community" \
+    "$HOME/verdict-dfir-community"; do
+    if [ -f "$cand/scripts/run-mcp-rust.sh" ]; then VERDICT_DFIR_HOME="$cand"; break; fi
+  done
+fi
+if [ -z "${VERDICT_DFIR_HOME:-}" ] || [ ! -f "${VERDICT_DFIR_HOME}/scripts/run-mcp-rust.sh" ]; then
+  echo "verdict-dfir: could not find the VERDICT toolkit (findevil MCP servers)." >&2
+  echo "  Set VERDICT_DFIR_HOME to a checkout of verdict-dfir-community, e.g.:" >&2
+  echo "    export VERDICT_DFIR_HOME=\$HOME/verdict-dfir-community" >&2
+  exit 1
+fi
+export VERDICT_DFIR_HOME
+
+# --- model endpoint defaults (provider-agnostic; user still picks via /models)
+export VERDICT_LLM_BASEURL="${VERDICT_LLM_BASEURL:-http://localhost:11434/v1}"
+export VERDICT_LLM_APIKEY="${VERDICT_LLM_APIKEY:-local}"
+export VERDICT_LLM_MODEL="${VERDICT_LLM_MODEL:-qwen2.5-coder:7b}"
+
+# --- load the DFIR profile regardless of the case directory ----------------
+export OPENCODE_CONFIG="${OPENCODE_CONFIG:-$PROFILE_DIR/.opencode/opencode.json}"
+export OPENCODE_CONFIG_DIR="${OPENCODE_CONFIG_DIR:-$PROFILE_DIR/.opencode}"
+
+VERDICT_BIN="${VERDICT_BIN:-verdict}"
+if ! command -v "$VERDICT_BIN" >/dev/null 2>&1; then
+  echo "verdict-dfir: '$VERDICT_BIN' not on PATH. Build/install the VERDICT opencode fork" >&2
+  echo "  (https://github.com/TimothyVang/verdict-opencode) and put 'verdict' on PATH." >&2
+  exit 1
+fi
+
+exec "$VERDICT_BIN" "$@"
